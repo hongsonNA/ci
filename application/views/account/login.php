@@ -170,10 +170,8 @@ a{
     
 </style>
 <body>
-
-
 <div class="login-reg-panel">
-		<div class="login-info-box">
+		<div class="login-info-box" style="color: #fff;">
 			<h2>Have an account?</h2>
 			<p>Lorem ipsum dolor sit amet</p>
 			<label id="label-register" for="log-reg-show">Login</label>
@@ -181,26 +179,21 @@ a{
 		</div>
 							
 		<div class="register-info-box" style="color: #fff;">
-			<h2>Don't have an account?</h2>
+			<h2>Ban chua co tai khoan?</h2>
 			<p>Lorem ipsum dolor sit amet</p>
-			<label id="label-login" for="log-login-show">Register</label>
+			<a  style="color:#fff;" href="/index.php/account/login" id="label-login" for="log-login-show">Register</a>
 			<input type="radio" name="active-log-panel" id="log-login-show">
 		</div>
 							
 		<div class="white-panel">
 			<div class="login-show">
-				<h2>LOGIN</h2>
-				<input type="text" placeholder="Email">
-				<input type="password" placeholder="Password">
-				<input type="button" value="Login">
-				<a href="">Forgot password?</a>
-			</div>
-			<div class="register-show">
-				<h2>REGISTER</h2>
-				<input type="text" placeholder="Email">
-				<input type="password" placeholder="Password">
-				<input type="password" placeholder="Confirm Password">
-				<input type="button" value="Register">
+				<form action="/index.php/account/loginUser" method="post" accept-charset="utf-8">
+                    <h2>LOGIN</h2>
+                    <input type="text" name="email" placeholder="Email">
+                    <input type="password" name="password" placeholder="Password">
+                    <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                </form>
+				<!-- <a href="">Forgot password?</a> -->
 			</div>
 		</div>
 	</div>
