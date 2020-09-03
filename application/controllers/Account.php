@@ -1,5 +1,8 @@
 <?php
+
 defined('BASEPATH') OR exit('No direct script access allowed');
+@include_once(APPPATH.'libraries/Redis.php');
+use Redis\CI_Redis;
 
 class Account extends CI_Controller {
 
@@ -21,10 +24,13 @@ class Account extends CI_Controller {
 
 	public function __construct() {
 		parent::__construct();
-		$this->load->helper(array('form', 'url'));
-		$this->load->library(['form_validation','session']);
 		$this->load->database();
+		$this->load->driver('cache', array('adapter' => 'redis')); //set cache
+		
+		$this->redis = new CI_Redis();
+		$this->load->library(['form_validation','session']);
 	}
+	
 	public function listUser(){
 		$list_user = $this->db->query('select * from default_guest');
 		if(!$list_user){
@@ -38,8 +44,7 @@ class Account extends CI_Controller {
 		
 		// print_r($list_user->result_array());
 	}
-	public function login($page='login')
-	{   
+	public function login($page='login'){   
 		// echo base_url(uri_string());
 		if ( ! file_exists(APPPATH.'views/account/'.$page.'.php')){
 			show_404();
@@ -51,10 +56,6 @@ class Account extends CI_Controller {
 	public function loginUser(){
 		// echo 'login';
 		$this->form_validation->set_rules('email', 'Email', 'trim|required|xss_clean');
-		$this->form_validation->set_rules('password', 'Password', 'required');
-
-
-		$this->form_validation->set_rules('email', 'Email', 'required');
 		$this->form_validation->set_rules('password', 'Password', 'required');
 		
 		$email = $this->input->post('email');
@@ -89,8 +90,7 @@ class Account extends CI_Controller {
 		}
 
 	}
-	public function register($page='register')
-	{   
+	public function register($page='register'){   
 		if ( ! file_exists(APPPATH.'views/account/'.$page.'.php'))
         {
             show_404();
@@ -98,16 +98,15 @@ class Account extends CI_Controller {
         $this->load->view('account/'.$page);
 	}
 	public function registerUser(){
-		$this->load->driver('cache', array('adapter' => 'apc', 'backup' => 'file')); //set cache
 
-		$this->form_validation->set_rules('email', 'Email', 'trim|required|xss_clean');
-		$this->form_validation->set_rules('password', 'Password', 'required');
+		// $this->form_validation->set_rules('email', 'Email', 'trim|required|xss_clean');
+		// $this->form_validation->set_rules('password', 'Password', 'required');
 
 
 		$arr = [];
-		$arr['fullname'] = $email = $this->input->post('fullname');
-		$arr['email'] = $email = $this->input->post('email');
-		$arr['password'] = $email = $password_hash_md5 = md5($this->input->post('password'));
+		$arr['fullname'] =  $this->input->post('fullname');
+		$arr['email'] =  $this->input->post('email');
+		$arr['password'] =  $password_hash_md5 = md5($this->input->post('password'));
 
 		$sql = $this->db->set($arr)->insert('default_guest');
 		if($sql){
@@ -115,7 +114,7 @@ class Account extends CI_Controller {
 				'fullname' => $arr['fullname'],
 				'email' => $arr['email'],	
 			);
-		$this->cache->save('registerUser', $data, 100);
+		// $this->cache->save('registerUser', $data, 100);
 		return $this->load->view('account/profile', $data);
 		}else echo 'Insert error';
 		// print_r($sql);
@@ -124,19 +123,19 @@ class Account extends CI_Controller {
 		return $this->load->view('account/profile');
 	}
 	public function cacheTest(){
-		$this->load->driver('cache', array('adapter' => 'apc', 'backup' => 'file'));
 
-		if ( ! $foo = $this->cache->get('registerUser'))
-		{
-				echo 'Saving to the cache!<br />';
-				$foo = 'foobarbaz!';
+			$cached = $this->redis->get('testCache');
+			// $getCache = $this->redis->checked_requied('old_cache');
 
-				// Save into the cache for 5 minutes
-				// $this->cache->save('foo', $foo, 300);
-		}
-
-		print_r($this->cache->get('registerUser'));
-
+			$foo = 'foobarbaz26823!';
+			$this->redis->set('testCache', $foo, 300);
+			// $this->redis->del('testCache');
+			// print_r($this->redis->get('testCache'));
+			print_r($this->redis->keys('*'));
+			
+			
+	
 		
 	}
+
 }
